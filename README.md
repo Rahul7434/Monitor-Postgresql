@@ -55,4 +55,24 @@
       ```
       top 10 queries by CPU utilization and shows a list of long-running queries. This information helps you analyze which queries are slowing the database.
       ```
-  
+### Lets look in to some of the most important configuration parameters in tuning the PostgreSQL database server:
+
+- shared_buffers :- default size:- 128 MB | Recommended	25% of the RAM.
+```
+Shared buffers are a specific section of memory designated to cache frequently accessed index blocks and data. By utilizing shared buffers, the database system can enhance its performance by minimizing the need to read data from disk, which is typically slow.
+Note: Increasing this configuration requires an increase in max_wal_size in order to process the larger amount of data when a checkpoint occurs.
+```
+- work_mem :- Default	4 MB |
+```
+Work memory in PostgreSQL is the memory allocated for executing individual operations, like sorting or hashing. This memory holds temporary data structures and intermediate results generated during the operation. The amount of work memory required by an operation depends on the complexity and size of input data, as well as available system memory. Inadequate work memory can cause operations to use disk-based temporary files, resulting in slower performance.
+Note: Postgres 13 presents a fresh configuration named hash_mem_multiplier, which serves as an extra option to optimize the allocation of memory.
+
+**Recommended**	 :- A reasonable value can be chosen based on the amount of data that is queried and brought into memory. You might also have to consider the max_connections parameter before setting a value, as several connections may be running in parallel. (Total RAM used = work_mem * concurrent connections). Finding the optimal value for work_mem can be challenging, but a reasonable default value that could work universally is around 64 MB.
+```
+- maintenance_work_mem:- 64MB |
+```
+The maintenance_work_mem parameter controls the amount of memory used for maintenance operations such as VACUUM, index creation, and adding foreign keys. Since only one of these operations can be executed at a time in one database session it is safe to set this value larger than work_mem. Larger settings might improve performance for vacuuming and for restoring database dumps.
+
+**Recommended** One thing to be considered here is that when autovacuum runs, memory consumed = autovacuum_max_workers x maintenance_work_mem. The value of this can be 512 MB.
+```
+
