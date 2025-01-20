@@ -75,4 +75,44 @@ The maintenance_work_mem parameter controls the amount of memory used for mainte
 
 **Recommended** One thing to be considered here is that when autovacuum runs, memory consumed = autovacuum_max_workers x maintenance_work_mem. The value of this can be 512 MB.
 ```
+- effective_cache_size | Default size 4 GB | Recommended	50% of the memory
+```
+The effective cache size parameter specifies the amount of memory that the database server can use for caching data and index blocks in memory. This parameter represents the estimated amount of memory used by the operating system file system cache and any other processes that may be running on the same system.
+
+The effective cache size parameter is utilized by the query planner to calculate the cost of various query execution plans. This setting allows the planner to make an informed estimate of the amount of data that is expected to be cached in memory, which is then used to make optimal decisions regarding query execution plan selection.
+```
+- max_worker_processes | Default	8 |  Recommended	It is recommended to use 50% of the processors so that the system can run normally.
+```
+The max_worker_processes parameter in PostgreSQL sets a limit on the number of concurrent background worker processes that can be running simultaneously. These worker processes perform various functions such as parallel query execution, handling connections, and background tasks.
+```
+
+- max_parallel_workers | Default	2 | Recommended	It is recommended to use 50% of the processors so that the system can run optimally.
+```
+The max_parallel_workers parameter in PostgreSQL limits the total count of parallel worker processes that can be active simultaneously. These worker processes are employed to enhance system performance during parallel query execution and other operations. Careful configuration of this parameter is crucial because it can significantly impact the resource utilization and overall performance of the system.
+```
+- max_parallel_workers_per_gather | default 2 | Recommended	Parallel workers are taken from the pool of processors established by the max_worker_processes and limited by max_parallel_workers.
+```
+Description	The max_parallel_workers_per_gather parameter in PostgreSQL manages the maximum count of parallel worker processes that can be engaged in a single operation. This parameter sets an upper boundary on the number of workers that can execute parallel table scans and query plans. It can significantly impact the performance of parallel queries, and requires careful configuration that considers the system resources and workload characteristics.
+```
+- max_wal_size |  Default	1 GB |  Recommended	Increasing this parameter can increase the amount of time needed for crash recovery
+
+```
+The max_wal_size parameter in PostgreSQL sets an upper limit on the size of the write-ahead log (WAL) that the database system can use. The WAL is a critical part of PostgreSQL's transaction management mechanism, responsible for maintaining data consistency and durability even in the event of system crashes or failures.
+
+Configuring this parameter allows you to set the maximum size for WAL grow during automatic checkpoints. WAL size can exceed max_wal_size under special circumstances, such as heavy load, a failing archive_command, or a high wal_keep_size setting.
+```
+
+- default_statistics_target | Default	Sample size = 300 * default_statistics_target | Recommended	Larger values increase the time needed to work on ANALYZE, but might improve the quality of the planner's estimates.
+
+```
+The default_statistics_target configuration parameter specifies the level of detail used by the query optimizer when collecting statistics about the database. the number of rows that are examined by the optimizer to determine the most efficient query execution plan is governed by this parameter . It determines the sample size used by the optimizer when analyzing a table for this purpose.
+```
+---
+
+
+
+
+
+
+
 
