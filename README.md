@@ -1,16 +1,70 @@
 # Monitor-Postgresql:
 #### Ensure optimal performance of Postgres database with 24x7 Postgres monitoring
 1. Monitor active connections: The number of active connections impacts server performance. Keep track of the current connection count and analyze user sessions to terminate idle ones that unnecessarily slow down the server.
+     ```
+     SELECT pid, usename, application_name, client_addr, state, query 
+     FROM pg_stat_activity where state='active';
+     ------------------------------------------
+
+     SELECT pg_terminate_backend(pid)
+    FROM pg_stat_activity
+    WHERE state = 'idle' AND usename = 'test_user';
+     ```
 ---
-3. Analyze response times: High response times in the database indicate a decline in performance. If response times are increasing, analyze long-running queries to identify potential issues.
+2. Analyze response times: High response times in the database indicate a decline in performance. If response times are increasing, analyze long-running queries to identify potential issues.
+```
+   SELECT query, total_exec_time, calls, mean_exec_time
+   FROM pg_stat_statements
+   ORDER BY mean_exec_time DESC
+   LIMIT 10;
+   --------------------------------------------
+  SELECT pid, query, now() - query_start AS duration
+  FROM pg_stat_activity
+  WHERE state = 'active'
+  ORDER BY duration DESC
+  LIMIT 5;
+ 
+```
 ---
-5. Track disk usage: Monitor PostgreSQL disk usage statistics to analyze server efficiency. Rapid increases in disk usage may suggest frequent access to storage, slowing down the network. You may have to investigate why data retrieval isn't happening from the cache.
+3. Track disk usage: Monitor PostgreSQL disk usage statistics to analyze server efficiency. Rapid increases in disk usage may suggest frequent access to storage, slowing down the network. You may have to investigate why data retrieval isn't happening from the cache.
+```
+      SELECT pg_size_pretty(pg_database_size('my_database')) AS size;
+     --------------------------------------------------------------------------------------------------
+      SELECT schemaname, relname, pg_size_pretty(pg_table_size(oid) - pg_relation_size(oid)) AS bloat
+      FROM pg_class
+      WHERE relkind = 'r';
+ 
+```
 ---
-7. Top 10 queries by CPU: Monitoring the top CPU-consuming queries helps identify which queries are taxing your server resources the most. Analyze these queries so you can optimize them to reduce CPU usage and enhance overall performance.
+4. Top 10 queries by CPU: Monitoring the top CPU-consuming queries helps identify which queries are taxing your server resources the most. Analyze these queries so you can optimize them to reduce CPU usage and enhance overall performance.
+
+```
+    SELECT query, total_exec_time, calls, (total_exec_time / calls) AS avg_time
+    FROM pg_stat_statements
+    ORDER BY total_exec_time DESC
+    LIMIT 10;
+```
 ---
-9. Long-running queries: Tracking long-running queries is essential to prevent them from degrading database performance. Identify and optimize these queries to improve response times and resource utilization significantly.
+5. Long-running queries: Tracking long-running queries is essential to prevent them from degrading database performance. Identify and optimize these queries to improve response times and resource utilization significantly.
+```
+    SELECT pid, query, state, now() - query_start AS duration
+    FROM pg_stat_activity
+    WHERE state = 'active'
+    ORDER BY duration DESC;
+     ----------------------------------------------------------------
+    SELECT pg_terminate_backend(pid)
+    FROM pg_stat_activity
+    WHERE now() - query_start > INTERVAL '1 hour';
+ 
+```
 ---
-10. Top 50 table row details: Obtain detailed insights into the top 50 queries to get a comprehensive overview of your database activity. This can help in pinpointing non-essential queries running in the background, allowing you to isolate and address them to prevent performance degradation.
+6. Top 50 table row details: Obtain detailed insights into the top 50 queries to get a comprehensive overview of your database activity. This can help in pinpointing non-essential queries running in the background, allowing you to isolate and address them to prevent performance degradation.
+```
+      SELECT schemaname, relname, n_live_tup AS row_count
+      FROM pg_stat_user_tables
+      ORDER BY n_live_tup DESC
+      LIMIT 50;
+```
 ---
 #### Optimize database performance by tracking buffer statistics Gain insights into database performance by tracking critical buffer statistics.
 1. Cache Hit Ratio: Measure the efficiency of your database cache by calculating the ratio of cache hits to lookups. A higher percentage indicates better performance.
