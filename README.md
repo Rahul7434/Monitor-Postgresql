@@ -142,9 +142,10 @@ SELECT
   wait_event_type,
   wait_event
 FROM
-  pg_stat_activity;
+  pg_stat_activity where state='active';
 ```
 - pg_stat_database: This view provides aggregate statistics per database. You can use it to monitor I/O statistics such as blocks read from disk and blocks hit in the cache.
+  #Using pg_stat_io (postgresql16 and above)
 ```
 SELECT
   datname,
