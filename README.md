@@ -1,6 +1,6 @@
 # Monitor-Postgresql:
 ---
-#### Optimize database performance by tracking buffer statistics Gain insights into database performance by tracking critical buffer statistics.
+## Optimize database performance by tracking buffer statistics Gain insights into database performance by tracking critical buffer statistics.
 1. Cache Hit Ratio: Measure the efficiency of your database cache by calculating the ratio of cache hits to lookups. A higher percentage indicates better performance.
 ```
 The Cache Hit Ratio measures how often the database cache is used to fetch data instead of accessing the disk. A higher percentage indicates better performance because it means the cache is effectively serving requests.
@@ -40,7 +40,7 @@ Monitor Buffer Reads:
 Calculate the number of reads per minute by running this query at regular intervals and calculating the difference.
 ```
 ---
-#### Performance metrics that you can track with PostgreSQL monitoring:
+## Performance metrics that you can track with PostgreSQL monitoring:
   1. Connection statistics
       ```
       : Keep an eye on the number of active connections in the database. Become mindful of total users in the database.
@@ -76,7 +76,7 @@ Calculate the number of reads per minute by running this query at regular interv
       ```
       top 10 queries by CPU utilization and shows a list of long-running queries. This information helps you analyze which queries are slowing the database.
       ```
-### Lets look in to some of the most important configuration parameters in tuning the PostgreSQL database server:
+## Lets look in to some of the most important configuration parameters in tuning the PostgreSQL database server:
 
 - shared_buffers :- default size:- 128 MB | Recommended	25% of the RAM.
 ```
@@ -129,7 +129,52 @@ Configuring this parameter allows you to set the maximum size for WAL grow durin
 The default_statistics_target configuration parameter specifies the level of detail used by the query optimizer when collecting statistics about the database. the number of rows that are examined by the optimizer to determine the most efficient query execution plan is governed by this parameter . It determines the sample size used by the optimizer when analyzing a table for this purpose.
 ```
 ---
+## Monitoring I/O Load
+- pg_stat_activity: This view shows information about the current activity of all backend processes. You can monitor the I/O load by checking the state of queries and their durations.
 
+```
+SELECT
+  pid,
+  datname,
+  usename,
+  state,
+  query,
+  wait_event_type,
+  wait_event
+FROM
+  pg_stat_activity;
+```
+- pg_stat_database: This view provides aggregate statistics per database. You can use it to monitor I/O statistics such as blocks read from disk and blocks hit in the cache.
+```
+SELECT
+  datname,
+  blks_read,
+  blks_hit,
+  (blks_hit * 100.0 / (blks_read + blks_hit)) AS hit_ratio
+FROM
+  pg_stat_database;
+
+```
+
+
+- pg_stat_statements: This extension tracks execution statistics of all SQL statements executed by the server. You can identify queries with high buffer reads using this extension.
+```
+SELECT
+  query,
+  calls,
+  total_time,
+  rows,
+  shared_blks_hit,
+  shared_blks_read,
+  (shared_blks_hit + shared_blks_read) AS total_blks,
+  (shared_blks_read * 100.0 / (shared_blks_hit + shared_blks_read)) AS read_ratio
+FROM
+  pg_stat_statements
+ORDER BY
+  shared_blks_read DESC
+LIMIT 10;
+
+```
 
 
 
