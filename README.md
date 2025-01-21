@@ -1,45 +1,5 @@
 # Monitor-Postgresql:
 ---
-## Optimize database performance by tracking buffer statistics Gain insights into database performance by tracking critical buffer statistics.
-1. Cache Hit Ratio: Measure the efficiency of your database cache by calculating the ratio of cache hits to lookups. A higher percentage indicates better performance.
-```
-The Cache Hit Ratio measures how often the database cache is used to fetch data instead of accessing the disk. A higher percentage indicates better performance because it means the cache is effectively serving requests.
-
-1. Calculate Cache Hit Ratio:
-Gather the number of cache hits and the total number of cache lookups.
-      SELECT
-      sum(heap_blks_hit) AS cache_hits,
-      sum(heap_blks_hit + heap_blks_read) AS total_lookups,
-      (sum(heap_blks_hit) * 100.0 / sum(heap_blks_hit + heap_blks_read)) AS hit_ratio
-      FROM
-      pg_statio_user_tables;
-```
----
-3. Block Reads/Minute: Track the number of times data is read from disk. High values might indicate cache inefficiency or excessive data access.
-```
-Block Reads/Minute tracks how often data is read from the disk. High values might suggest cache inefficiency or excessive data access, which can slow down your database performance.
-Track Block Reads:
-Monitor the number of block reads from the disk using the following SQL query:
-      SELECT
-        sum(heap_blks_read) AS disk_reads
-      FROM
-      pg_statio_user_tables;
-To calculate reads per minute, you can run this query at regular intervals and calculate the difference.
-```
----
-5. Buffer Reads/Minute: Monitor the overall cache utilization by tracking the number of cache hits per minute.
-```
-Buffer Reads/Minute measures overall cache utilization by tracking the number of cache hits per minute. This helps you understand how effectively your cache is being used.
-Monitor Buffer Reads:
-  Use the following SQL query to track buffer reads (cache hits):
-
-      SELECT
-      sum(heap_blks_hit) AS buffer_reads
-      FROM
-      pg_statio_user_tables;
-Calculate the number of reads per minute by running this query at regular intervals and calculating the difference.
-```
----
 ## Performance metrics that you can track with PostgreSQL monitoring:
   1. Connection statistics
       ```
