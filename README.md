@@ -138,7 +138,12 @@ ORDER BY
 LIMIT 10;
 
 ```
-
+- pg_stat_bgwriter how to understand allits columns dataas human
+The pg_stat_bgwriter view in PostgreSQL provides statistics about the background writer process, which is responsible for writing dirty buffers to disk. Understanding these columns can help you monitor and optimize the performance of your PostgreSQL instance. Here's a breakdown of the columns.
+```
+select * from pg_stat_bgwriter;
+```
+---
 
 
 
