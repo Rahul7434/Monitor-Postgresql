@@ -145,6 +145,25 @@ select * from pg_stat_bgwriter;
 ```
 ---
 
+### Top time consuming queries
+```
+select userid::regrole, dbid, query ,calls, total_time/1000 as total_time_seconds ,min_time/1000 as min_time_seconds,max_time/1000 as max_time_seconds,mean_time/1000 as mean_time_seconds
+    from pg_stat_statements
+    order by mean_time desc
+    limit 10;
+```
+###  sql queries having high i/o activity
+```
+postgres# select userid::regrole, dbid, query,queryid,mean_time/1000 as mean_time_seconds 
+    from pg_stat_statements
+    order by (blk_read_time+blk_write_time) desc
+    limit 10;
+```
+### Queries with high memory usage:
+```
+postgres=# select userid::regrole, dbid, queryid,query  from pg_stat_statements 
+            order by (shared_blks_hit+shared_blks_dirtied) desc limit 10;
+```
 
 
 
