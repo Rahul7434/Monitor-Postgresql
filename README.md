@@ -174,6 +174,121 @@ output:
 -------------+----------+-------------+------------------------------
         4206 | postgres | {3673}      | alter table test drop query;
 ```
+### Archive Process Status
+```
+postgres# select * from pg_stat_archiver;
+-[ RECORD 1 ]------+---------------------------------
+archived_count     | 0
+last_archived_wal  |
+last_archived_time |
+failed_count.      | 0
+last_failed_wal.   |
+last_failed_time   |
+stats_reset        | 26-SEP-20 11:13:08.540237 +03:00
+
+```
+
+### Get Config values from psql prompt.
+```
+
+postgres=# select * from pg_settings;
+
+\x
+postgres=# select * from pg_settings where name='port';
+
+2. Alternatively you can check postgresql.conf file
+
+postgres=# show config_file;
+config_file
+---------------------------------
+/pgdata/data/postgresql.conf
+(1 row)
+
+cat /pgdata/data/postgresql.conf
+
+```
+### Last pg config reload time
+```
+postgres=# select pg_conf_load_time() ;
+pg_conf_load_time
+----------------------------------
+2020-07-06 13:20:18.048689+05:30
+(1 row)
+```
+
+### Wal Switch manually
+```
+postgres=# select pg_switch_wal();
+pg_switch_wal
+---------------
+0/1D392648
+(1 row)
+```
+### View existing connection limit setting:( datconnlimit )
+```
+postgres=# select datname,datallowconn,datconnlimit from pg_database where datname='test_dev';
+-[ RECORD 1 ]--+------------
+datname        | test_dev
+datallowconn  | t.
+datconnlimit  | -1.       -- >Means unlimited connections allowed
+
+-- To set a specific limit for connection
+
+test_dev=# alter database test_dev connection limit 100;
+ALTER DATABASE
+
+-- To restrict all the connections to db
+
+test_dev=# alter database test_dev connection limit 0;
+ALTER DATABASE
+```
+
+### Find wal file details and its size
+```
+-- List down all the wal files present in pg_wal
+
+postgres=# select * from pg_ls_waldir();
+name                     | size     | modification
+------------------------------------------+----------+---------------------------
+0000000100000079000000D5 | 16777216 | 22-APR-22 20:51:26 +03:00
+0000000100000079000000D8 | 16777216 | 22-APR-22 20:39:33 +03:00
+0000000100000079000000D6 | 16777216 | 22-APR-22 20:07:40 +03:00
+0000000100000079000000D9 | 16777216 | 22-APR-22 20:47:21 +03:00
+0000000100000079000000D7 | 16777216 | 22-APR-22 20:21:45 +03:00
+00000001000000790000005C.00005BC8.backup | 323 | 21-APR-22 10:14:40 +03:00
+(6 rows)
+
+-- Find total size of wal:
+
+postgres=# select sum(size) from pg_ls_waldir();
+sum
+----------
+83886403
+(1 row)
+
+-- Find current wal file lsn:
+
+postgres=# select pg_current_wal_insert_lsn(),pg_current_wal_lsn();
+```
+### Find list of installed extension:
+
+```
+
+psql# \dx
+
+(or)
+
+psql#\dx+
+
+(or)
+
+psql#SELECT * FROM pg_extension;
+
+-- For finding available extension in server:
+
+psql# SELECT * FROM pg_available_extensions;
+```
+
 
 
 
