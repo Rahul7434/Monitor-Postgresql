@@ -164,7 +164,16 @@ postgres# select userid::regrole, dbid, query,queryid,mean_time/1000 as mean_tim
 postgres=# select userid::regrole, dbid, queryid,query  from pg_stat_statements 
             order by (shared_blks_hit+shared_blks_dirtied) desc limit 10;
 ```
+### QUERY TO FIND BLOCKING SESSION DETAILS
+```
+dbaclass#select pid as blocked_pid, usename, pg_blocking_pids(pid) as "blocked_by(pid)", query as blocked_query from pg_stat_activity where cardinality(pg_blocking_pids(pid)) > 0;
 
+output:
+
+ blocked_pid | usename  | blocked_by(pid) |        blocked_query
+-------------+----------+-------------+------------------------------
+        4206 | postgres | {3673}      | alter table test drop query;
+```
 
 
 
